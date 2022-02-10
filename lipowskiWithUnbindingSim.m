@@ -78,7 +78,7 @@ nPlus(idx+1)  =[];
 nMinus(idx+1) =[];
 Nplus(idx+1)  =[];
 Nminus(idx+1) =[];
-
+vCargo(idx+1) =[];
 
 motorDynamicsList.t=t;
 motorDynamicsList.x=x;
