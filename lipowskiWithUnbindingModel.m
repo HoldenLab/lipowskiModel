@@ -1,5 +1,5 @@
 %Lipowski model
-function motorDynamics = lipowskiModel(motorState)
+function motorDynamics = lipowskiWithUnbindingModel(motorState)
 
 %motorState
 eps0 = motorState.eps0;%single motor unbinding rate
@@ -12,6 +12,21 @@ nPlus = motorState.nPlus;%number of bound plus motors
 nMinus= motorState.nMinus;%number of bound minus motors
 vF = motorState.vF;%forward velocity
 vB = motorState.vB;%backward velocity
+motorConcentration = motorState.motorConcentration;
+kOn0 = motorState.kOn0; %rate of single motor (synthase) binding to cargo (mreB)
+kOff0 = motorState.kOff0; %rate of single motor (synthase) unbinding from cargo (mreB)
+if isfield(motorState,'Nmax')%optional field to define max occupancy of +/- sites
+    Nmax = motorState.Nmax;
+else
+    Nmax = inf;
+end
+
+if nPlus>Nplus 
+    error('Number of attached plus motors cannot be greater than total number of plus motors')
+elseif nMinus>Nminus 
+    error('Number of attached minus motors cannot be greater than total number of minus motors')
+end
+
 
 if nPlus>=nMinus
     v1=vF;
@@ -44,6 +59,21 @@ end
 piPlus = (Nplus - nPlus)*pi0;
 piMinus = (Nminus - nMinus)*pi0;
 
+%binding unbinding rates
+%cargo unbinding occurs only from inactive motors
+kOffPlus = (Nplus - nPlus)*kOff0;
+if Nplus<Nmax
+    kOnPlus = kOn0*motorConcentration;
+else
+    kOnPlus = 0;
+end
+kOffMinus = (Nminus - nMinus)*kOff0;
+if Nminus<Nmax
+    kOnMinus = kOn0*motorConcentration;
+else
+    kOnMinus = 0;
+end
+
 motorDynamics.lambda  =lambda;   
 motorDynamics.Fcargo  =Fcargo; 
 motorDynamics.vCargo  =vCargo ; 
@@ -51,4 +81,7 @@ motorDynamics.epsPlus =epsPlus ;
 motorDynamics.epsMinus=epsMinus;
 motorDynamics.piPlus  =piPlus  ;
 motorDynamics.piMinus =piMinus ;
-
+motorDynamics.kOffMinus=kOffMinus;
+motorDynamics.kOnMinus = kOnMinus;
+motorDynamics.kOffPlus=kOffPlus;
+motorDynamics.kOnPlus = kOnPlus;
