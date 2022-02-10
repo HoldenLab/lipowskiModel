@@ -27,6 +27,8 @@ for ii = 2:nStep
     x(ii)=x(ii-1)+m.vCargo*tau;
     nPlus(ii)= motorState.nPlus;
     nMinus(ii)=motorState.nMinus;
+    Nplus(ii)= motorState.Nplus;
+    Nminus(ii)=motorState.Nminus;
     vCargo(ii)=m.vCargo;
 
     %select reaction to occur
@@ -65,6 +67,19 @@ for ii = 2:nStep
             motorState.Nminus=motorState.Nminus+1;
     end
 end
+
+%apparently some transitions happen so fast as to be approximately instantaneous
+%In this case only record the second event (although the first event still happens
+%so effectively equivalent to appearance of eg 2 motors could bind at once
+idx=find(diff(t)==0);
+t(idx+1)=[];
+x(idx+1)=[];
+nPlus(idx+1)  =[];
+nMinus(idx+1) =[];
+Nplus(idx+1)  =[];
+Nminus(idx+1) =[];
+
+
 motorDynamicsList.t=t;
 motorDynamicsList.x=x;
 motorDynamicsList.nPlus=nPlus;
@@ -72,4 +87,3 @@ motorDynamicsList.nMinus=nMinus;
 motorDynamicsList.Nplus=Nplus;
 motorDynamicsList.Nminus=Nminus;
 motorDynamicsList.vCargo=vCargo;
-
