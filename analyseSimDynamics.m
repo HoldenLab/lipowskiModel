@@ -44,7 +44,7 @@ frameThresh=4;
 chgptFilt=chgpt;
 ii = 2;
 while ii <= numel(chgptFilt)
-    if ii > 1 & (chgptFilt(ii)-chgptFilt(ii-1))<frameThresh
+    if ii > 1 && (chgptFilt(ii)-chgptFilt(ii-1))<frameThresh
         if chgptFilt(ii)+1>numel(vSign) %if last change point out of bounds
             %delete last chgptFilt
             chgptFilt(ii)=[];
@@ -60,8 +60,16 @@ while ii <= numel(chgptFilt)
         ii=ii+1;
     end
 end
-tChgPtFilt=tFr(chgptFilt);
-%plot(tChgPtFilt,vSign(chgptFilt),'o')
+
+%add back in the first and last points if they are sufficiently
+%far away from a change point
+if chgptFilt(1)~=1 && chgptFilt(1)-1>=frameThresh
+    chgptFilt=[1,chgptFilt];
+end
+if chgptFilt(end)~=numel(vSign) && (numel(vSign)-chgptFilt(end))>=frameThresh
+    chgptFilt=[chgptFilt, numel(vSign)];
+end
+
 
 %record states in output table
 simResult = table;
