@@ -11,11 +11,9 @@ for ii=1:nSimRepeat
     x=dynamics.x;
     runID=ii;
     [simResultCur] = analyseSimDynamics(t,x,frameInterval,zeroSpeedThresh, switchTooCloseThresh, runID);
-try
-    simResult=[simResult;simResultCur];
-catch ME
-    keyboard
-end
+    if size(simResultCur,1)>0
+        simResult=[simResult;simResultCur];
+    end
 end
 
 %implement rate calculations as functions so can do bootstrap CIs
