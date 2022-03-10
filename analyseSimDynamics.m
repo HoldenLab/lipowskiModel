@@ -44,8 +44,6 @@ frameThresh=4;
 chgptFilt=chgpt;
 ii = 2;
 while ii <= numel(chgptFilt)
-    %try
-    
     if ii > 1 & (chgptFilt(ii)-chgptFilt(ii-1))<frameThresh
         if chgptFilt(ii)+1>numel(vSign) %if last change point out of bounds
             %delete last chgptFilt
@@ -61,9 +59,6 @@ while ii <= numel(chgptFilt)
     else
         ii=ii+1;
     end
-%     catch ME
-%         keyboard
-%     end
 end
 tChgPtFilt=tFr(chgptFilt);
 %plot(tChgPtFilt,vSign(chgptFilt),'o')
