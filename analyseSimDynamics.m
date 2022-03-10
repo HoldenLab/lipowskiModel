@@ -1,4 +1,4 @@
-function [simResult, chgpt, tFr,xFr] = analyseSimDynamics(t,x,frameInterval,zeroSpeedThresh, switchTooCloseThresh, runID)
+function [simResult, chgpt, tFr,xFr] = analyseSimDynamics(t,x,frameInterval,zeroSpeedThresh, switchTooCloseThresh, runID,dynamics)
 % function [simResult, chgpt, tFr,xFr] = analyseSimDynamics(t,x,frameInterval,zeroSpeedThresh, switchTooCloseThresh)
 %INPUTS
 % frame interval: units: t (typically s): exposure time for a single image frame in comparable experimental system. For MreB dynamics, we usually use 6 s
@@ -69,21 +69,34 @@ if chgptFilt(end)~=numel(vSign) && (numel(vSign)-chgptFilt(end))>=frameThresh
     chgptFilt=[chgptFilt, numel(vSign)];
 end
 
+if exist('dynamics','var')
+    NplusFr = interp1(t,dynamics.Nplus,tFr);
+    NminusFr = interp1(t,dynamics.Nminus,tFr);
+    NmotorFr = NplusFr+NminusFr;
+end
 
+    
 %record states in output table
 simResult = table;
-nState = numel(chgptFilt)-2;%have to discard the last state as dont know what it transitioned to
+nState = numel(chgptFilt)-1;
 simResult.runID = ones(nState,1)*runID;
 %loop through and measure state properties
 for ii=1:nState
     startIdx = chgptFilt(ii);
-    endIdx  = chgptFilt(ii+1);
-    nextStateIdx=chgptFilt(ii+2);
+    endIdx  = chgptFilt(ii+1);        
     simResult.duration(ii)= tFr(endIdx)-tFr(startIdx);
     simResult.processivity(ii)=abs(xFr(endIdx)-xFr(startIdx));
     simResult.speed(ii)=simResult.processivity(ii)/simResult.duration(ii);
     simResult.isMotile(ii)=vSign(endIdx)~=0;
-    simResult.isNextStateMotile(ii)=vSign(nextStateIdx)~=0;    
+    if exist('dynamics','var')
+        simResult.Nmotor(ii) = median(NmotorFr(startIdx:endIdx));
+    end
+    if ii<nState
+        nextStateIdx=chgptFilt(ii+2);
+        simResult.isNextStateMotile(ii)=double(vSign(nextStateIdx)~=0);    
+    else
+        simResult.isNextStateMotile(ii)=NaN;
+    end
 end
 
 chgpt = chgptFilt;

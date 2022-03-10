@@ -2,9 +2,21 @@ function [motorDynamicsList] = lipowskiWithUnbindingSim(motorPar,simPar)
 
 %initialise with one motor
 motorState=motorPar;
-nStep= simPar.nStep;
+if isfield(simPar,'nStep')
+    nStep= simPar.nStep;
+else
+    nStep=100;
+end
+if isfield(simPar,'doFixedTime')
+    doFixedTime=simPar.doFixedTime;
+else
+    doFixedTime=false;
+end
+if isfield(simPar,'simTime')
+    simTime=simPar.simTime;
+end
 
-t=zeros(nStep,1);
+t=zeros(max(nStep,10e3),1);
 x=t;
 nPlus=t;
 nMinus=t;
@@ -13,7 +25,9 @@ Nminus=t;
 vCargo=t;
 
 %gillespie algorithm
-for ii = 2:nStep
+doSim = true;
+ii=2;
+while doSim
     m = lipowskiWithUnbindingModel(motorState);
     %calculate overall reaction rate
     k=[m.epsPlus,m.epsMinus,m.piPlus,m.piMinus,m.kOffPlus,m.kOnPlus,m.kOffMinus,m.kOnMinus];
@@ -66,7 +80,26 @@ for ii = 2:nStep
         case 8 %kOnMinus
             motorState.Nminus=motorState.Nminus+1;
     end
+    if ~doFixedTime && ii>nStep
+        doSim=false;
+    elseif doFixedTime && t(ii)>simTime
+        doSim=false;
+    else
+        ii = ii + 1;
+    end
 end
+
+if ii< numel(t)
+    t(ii+1:end)=[];
+    x(ii+1:end)=[];
+    nPlus(ii+1:end)=[];
+    nMinus(ii+1:end)=[];
+    Nplus(ii+1:end)=[];
+    Nminus(ii+1:end)=[];
+    vCargo(ii+1:end)=[];
+end
+
+
 
 %apparently some transitions happen so fast as to be approximately instantaneous
 %In this case only record the second event (although the first event still happens
