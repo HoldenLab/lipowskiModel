@@ -36,11 +36,10 @@ vSign(vSign<0) =-1;
 chgpt=find(diff(vSign)~=0);
 %add the first and last frames as states
 chgpt=[1,chgpt,numel(tFr)-1];
-hold all;
+
 tChgPt=tFr(chgpt);
 %plot(tChgPt,vSign(chgpt),'x')
 %Filter out short trajectories
-frameThresh=4;
 chgptFilt=chgpt;
 ii = 2;
 while ii <= numel(chgptFilt)
