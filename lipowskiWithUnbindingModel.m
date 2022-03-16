@@ -20,6 +20,17 @@ if isfield(motorState,'Nmax')%optional field to define max occupancy of +/- site
 else
     Nmax = inf;
 end
+if isfield(motorState,'speedDependsOnNmotor')
+    speedDependsOnNmotor = motorState.speedDependsOnNmotor;
+else
+    speedDependsOnNmotor = false;
+end
+if speedDependsOnNmotor
+    Nmotor = Nplus+Nminus;
+    if Nmotor>0 %otherwise we divide by zero
+        vF = vF/(Nplus+Nminus); %model where local depletion of lipid II reduces synthase speed
+    end
+end
 
 if nPlus>Nplus 
     error('Number of attached plus motors cannot be greater than total number of plus motors')
